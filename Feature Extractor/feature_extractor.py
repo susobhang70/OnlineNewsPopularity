@@ -37,7 +37,7 @@ def main():
         if i is not 0:
             items = data_lines[i].split(",")
             # print items[feature_count-1]
-            if int(items[feature_count-1]) >= 1400:
+            if int(items[feature_count-1]) > 1400:
                 label[i] = 1
                 count_label1 += 1
             else:
@@ -76,7 +76,7 @@ def main():
     sorted_mapping = sorted(mapping.items(), key=operator.itemgetter(1))
     sorted_mapping.reverse()
     for key, value in sorted_mapping:
-        print key
+        print key, value
 
     fp.close()
 
