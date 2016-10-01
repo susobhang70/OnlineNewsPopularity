@@ -3,9 +3,10 @@
 # Returns features in descending order of Fischer Criterion.
 
 import operator
+import math
 from collections import Counter
 
-type_of_data = [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,\
+type_of_data = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,\
                 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,\
                 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,\
                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -29,6 +30,7 @@ def main():
     feature_names = data_lines[0].split(", ")
     feature_count = len(feature_names)
     instance_count = len(data_lines)
+    test_count = len(test_lines)
     discrete_distribution = [[]]
 
     # Initializing some values
@@ -104,9 +106,39 @@ def main():
                     else:
                         s2_squared[j] += (val-mean2[j])*(val-mean2[j])
 
-    # for i in range(len(feature_names)):
-    #     print feature_names[i], mean1[i], mean2[i]
-    print discrete_distribution
+    total = count_label1 + count_label2
+    prior1 = float(count_label1)/total
+    prior2 = float(count_label2)/total
+    
+    # cross validation test
+    count_correct = 0
+    for i in range(test_count):
+        probability1 = prior1
+        probability2 = prior2
+        items = test_lines[i].split(",")
+        for j in range(feature_count - 1):
+            if j != 0:
+                temp1 = 1
+                temp2 = 1
+                val = float(items[j].strip())
+                if type_of_data[j] == 0:
+                    try:
+                        temp1 = discrete_distribution[j][0][val]
+                        temp2 = discrete_distribution[j][1][val]
+                    except:
+                        print j, val
+                else:
+                    temp1 = gaussian(mean1[j], s1_squared[j], val)
+                    temp2 = gaussian(mean2[j], s2_squared[j], val)
+                probability1 *= temp1
+                probability2 *= temp2
+
+        if (probability1 > probability2 and float(items[feature_count - 1]) > 1400) or \
+            (probability2 > probability1 and float(items[feature_count - 1]) < 1400):
+            count_correct += 1
+
+    # print discrete_distribution[j]
+    print count_correct, test_count
     fp.close()
 
 if __name__ == '__main__':
