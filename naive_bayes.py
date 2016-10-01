@@ -4,6 +4,11 @@
 
 import operator
 
+type_of_data = [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,\
+                0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,\
+                0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1.\
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+
 def main():
     """
     Calculate the labels for each feature, and then the mean and 's' values, 
@@ -55,6 +60,8 @@ def main():
                         sum1[j] += val
                     else:
                         sum2[j] += val
+                    if type_of_data[j] == 0:
+                        
             mean1[j] = sum1[j]/count_label1
             mean2[j] = sum2[j]/count_label2
 
@@ -69,18 +76,7 @@ def main():
                         s1_squared[j] += (val-mean1[j])*(val-mean1[j])
                     else:
                         s2_squared[j] += (val-mean2[j])*(val-mean2[j])
-            F[j] = ((mean1[j] - mean2[j])*(mean1[j] - mean2[j]))/(s1_squared[j] + s2_squared[j])
 
-
-    # Making a dict with Fisher Values and Feature Names, and Sorting
-    mapping = dict(zip(feature_names, F))
-    sorted_mapping = sorted(mapping.items(), key=operator.itemgetter(1))
-    sorted_mapping.reverse()
-    i = 0
-    for key, value in sorted_mapping:
-        if i != 0:
-            print str(key) + ',' + str(value) + ',' + str(mean1[i]) + ',' + str(mean2[i]) + ',' + str(s1_squared[i]) + ',' + str(s2_squared[i])
-        i = i + 1
 
     fp.close()
 
