@@ -29,30 +29,19 @@ def LMS(y, b, eta, theta, a):
     normalcount = 1
     flag = False
     while True:
-        # try:
-            neweta = eta / normalcount
-            estimatedValue = np.dot(a, y[k])
-            product = neweta * (b[k] - estimatedValue)
-            newvector = product * y[k]
-            newvalue = np.linalg.norm(newvector)
-            a = a + newvector
-            # print newvalue, product, neweta, b[k], estimatedValue, k, normalcount, list(i for i in newvector), list(i for i in y[k]), list(i for i in a)
-            # print
-            if newvalue < theta and flag:
-                print b[k], estimatedValue, normalcount
-                break
-            normalcount += 1
-            if k == len(y) - 1:
-                flag = True
-            k = (k + 1) % len(y)
-        # except:
-        #     # print product
-        #     print y[k]
-        #     print a
-        #     print b[k]
-        #     print normalcount
-        #     break
-    # print a
+        neweta = eta / normalcount
+        estimatedValue = np.dot(a, y[k])
+        product = neweta * (b[k] - estimatedValue)
+        newvector = product * y[k]
+        newvalue = np.linalg.norm(newvector)
+        a = a + newvector
+        if newvalue < theta and flag:
+            print b[k], estimatedValue, normalcount
+            break
+        normalcount += 1
+        if k == len(y) - 1:
+            flag = True
+        k = (k + 1) % len(y)
     return a
 
 def main():
@@ -80,7 +69,6 @@ def main():
                 data[i][j] = float(data[i][j])
 
         B = convert_to_binary(B)
-        # print B
         data = np.array(data, dtype = np.float64)
 
         data = augment(data)
@@ -91,10 +79,8 @@ def main():
         cvtestresult = B[int(0.7 * len(data)) + 1:]
 
         weights = [1.0000] * (len(features_list) + 1)
-        # weights = np.random.rand(len(features_list) + 1)
 
         weights = LMS(traindata, trainresult, ETA, THETA, weights)
-        # weights = LMS(data, B, ETA, THETA, weights)
 
         # testing from now
         count = 0
@@ -107,17 +93,8 @@ def main():
                 estimatedValue = -1
             if estimatedValue == cvtestresult[i]:
                 count = count + 1
-        # for i in range(len(data)):
-        #     estimatedValue = np.dot(weights, data[i])
-        #     if estimatedValue >= 0:
-        #         estimatedValue = 1
-        #     else:
-        #         estimatedValue = -1
-        #     if estimatedValue == B[i]:
-        #         count = count + 1
 
         accuracy = float(count) * 100.00 / float(len(cvtestresult))
-        # accuracy = float(count) * 100.00 / float(len(B))
         print accuracy
 
 if __name__ == '__main__':

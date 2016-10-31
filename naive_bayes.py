@@ -1,6 +1,5 @@
 #!/usr/bin/python
-# Script to extract relevant features from the Mashables corpus.
-# Returns features in descending order of Fischer Criterion.
+# Script to implement Naive Bayes classifier
 
 import operator
 import math
@@ -11,13 +10,14 @@ type_of_data = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,\
                 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,\
                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
+indexes = [7, 9, 12, 14, 16, 17, 18, 25, 26, 27, 36, 37, 38, 39, 40, 41, 43, 44, 45, 49]
+
 def gaussian(mean, variance, value):
     return ((1/math.sqrt(2 * math.pi * variance)) * (math.exp((-((value - mean) * (value - mean))) / (2 * variance))))
 
 def main():
     """
-    Calculate the labels for each feature, and then the mean and 's' values, 
-    then the fischer score.
+    Naive Bayes implementation
     """
 
     # Opening the file, and extracting each line
@@ -109,36 +109,51 @@ def main():
     total = count_label1 + count_label2
     prior1 = float(count_label1)/total
     prior2 = float(count_label2)/total
+    print prior1, prior2
     
     # cross validation test
-    count_correct = 0
+    count_correct1 = 0
+    count_correct2 = 0
     for i in range(test_count):
         probability1 = prior1
         probability2 = prior2
+        selective_P1 = prior1
+        selective_P2 = prior2
         items = test_lines[i].split(",")
         for j in range(feature_count - 1):
             if j != 0:
                 temp1 = 1
                 temp2 = 1
+                t_s1 = 1
+                t_s2 = 1
                 val = float(items[j].strip())
                 if type_of_data[j] == 0:
                     try:
                         temp1 = discrete_distribution[j][0][val]
                         temp2 = discrete_distribution[j][1][val]
                     except:
-                        print j, val
-                else:
-                    temp1 = gaussian(mean1[j], s1_squared[j], val)
-                    temp2 = gaussian(mean2[j], s2_squared[j], val)
+                        pass
+                if j in indexes:
+                    try:
+                        t_s1 = discrete_distribution[j][0][val]
+                        t_s2 = discrete_distribution[j][1][val]
+                    except:
+                        pass
                 probability1 *= temp1
                 probability2 *= temp2
+                selective_P1 *= t_s1
+                selective_P2 *= t_s2
 
         if (probability1 > probability2 and float(items[feature_count - 1]) > 1400) or \
             (probability2 > probability1 and float(items[feature_count - 1]) < 1400):
-            count_correct += 1
+            count_correct1 += 1
 
-    # print discrete_distribution[j]
-    print count_correct, test_count
+        if (selective_P1 > selective_P2 and float(items[feature_count - 1]) > 1400) or \
+            (selective_P2 > selective_P1 and float(items[feature_count - 1]) < 1400):
+            count_correct2 += 1
+
+    print 'Full features Naive Bayes:', (100*float(count_correct1)/float(test_count)), '%'
+    print 'Selective features Naive Bayes:', (100*float(count_correct2)/float(test_count)), '%'
     fp.close()
 
 if __name__ == '__main__':
