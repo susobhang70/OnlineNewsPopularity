@@ -36,11 +36,13 @@ def readfile():
     return data, labels, shares
 
 def split_data(data, labels, randomize):
+    # data = data[:2000]
+    # labels = labels[:2000]
     if randomize is False:
-        train_data = data[0:int(len(data)*(0.7))]
+        train_data   = data[0:int(len(data)*(0.7))]
         train_labels = labels[0:int(len(data)*(0.7))]
-        test_data = data[int(len(data)*(0.7)) + 1 : ]
-        test_labels = labels[int(len(data)*(0.7)) + 1 : ]
+        test_data    = data[int(len(data)*(0.7)) + 1 : ]
+        test_labels  = labels[int(len(data)*(0.7)) + 1 : ]
         return train_data, test_data, train_labels, test_labels
 
     else:
@@ -48,19 +50,21 @@ def split_data(data, labels, randomize):
 
 def main():
     data, labels, shares = readfile()
-    train_data, test_data, train_labels, test_labels = split_data(data, labels, False)
+    # train_data, test_data, train_labels, test_labels = split_data(data, labels, False)
 
-    SVM1 = svm.SVC(kernel="linear")
-    SVM1.fit(train_data, train_labels)
-    print 'SVM with linear kernel, no cv randomization =', SVM1.score(test_data, test_labels)*100,'%'
+    # print train_data.shape, test_data.shape, train_labels.shape, test_labels.shape
 
-    SVM1 = svm.SVC(kernel="rbf")
-    SVM1.fit(train_data, train_labels)
-    print 'SVM with rbf kernel, no cv randomization =', SVM1.score(test_data, test_labels)*100,'%'
+    # SVM1 = svm.SVC(kernel="linear")
+    # SVM1.fit(train_data, train_labels)
+    # print 'SVM with linear kernel, no cv randomization =', SVM1.score(test_data, test_labels)*100,'%'
 
-    SVM1 = svm.SVC(kernel="poly")
-    SVM1.fit(train_data, train_labels)
-    print 'SVM with poly kernel, no cv randomization =', SVM1.score(test_data, test_labels)*100,'%'
+    # SVM1 = svm.SVC(kernel="rbf")
+    # SVM1.fit(train_data, train_labels)
+    # print 'SVM with rbf kernel, no cv randomization =', SVM1.score(test_data, test_labels)*100,'%'
+
+    # SVM1 = svm.SVC(kernel="poly")
+    # SVM1.fit(train_data, train_labels)
+    # print 'SVM with poly kernel, no cv randomization =', SVM1.score(test_data, test_labels)*100,'%'
 
     for i in range(10):
         train_data, test_data, train_labels, test_labels = split_data(data, labels, True)
@@ -73,9 +77,10 @@ def main():
         SVM1.fit(train_data, train_labels)
         print '#', i, 'SVM with rbf kernel, with cv randomization =', SVM1.score(test_data, test_labels)*100,'%'
 
-        SVM1 = svm.SVC(kernel="poly")
-        SVM1.fit(train_data, train_labels)
-        print '#', i, 'SVM with poly kernel, with cv randomization =', SVM1.score(test_data, test_labels)*100,'%'
+        # SVM1 = svm.SVC(kernel="poly")
+        # SVM1.fit(train_data, train_labels)
+        # print '#', i, 'SVM with poly kernel, with cv randomization =', SVM1.score(test_data, test_labels)*100,'%'
 
 if __name__ == '__main__':
+    np.random.seed()
     main()

@@ -1,0 +1,9 @@
+Naive Bayes Full Features Discrete = 58.488186 %
+Naive Bayes 20 Features Discrete = 57.53530648 %
+
+SVM with linear kernel, no cv randomization = 65.4250399395 %
+SVM with rbf kernel, no cv randomization = 50.2396367611 %
+# 0 SVM with linear kernel, with cv randomization = 64.3013284009 %
+# 0 SVM with rbf kernel, with cv randomization = 53.6320834034 %
+# 1 SVM with linear kernel, with cv randomization = 65.4823185023 %
+# 1 SVM with rbf kernel, with cv randomization = 52.1121524022 %
