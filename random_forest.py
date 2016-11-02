@@ -6,12 +6,14 @@ import sys
 from sklearn import svm
 from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
-from multiprocessing.dummy import Pool as ThreadPool 
+from multiprocessing.pool import ThreadPool
+from threading import Thread
+from sklearn.ensemble import RandomForestClassifier
 
-SAMPLE_SIZE = 1500
-FEATURE_SIZE = 5
-MIN_NODE_SIZE = 50
-NUM_TREES = 6
+SAMPLE_SIZE = 500
+FEATURE_SIZE = 20
+MIN_NODE_SIZE = 2
+NUM_TREES = 500
 
 indexes = [7, 9, 12, 14, 16, 17, 18, 25, 26, 27, 36, 37, 38, 39, 40, 41, 43, 44, 45, 49]
 field_names = []
@@ -141,10 +143,10 @@ class Node():
 
 class Tree():
 	'''Random decision tree'''
-	# def __init__(self, dataset, labels):
-	def __init__(self, args):
-		dataset = args[0]
-		labels = args[1]
+	def __init__(self, dataset, labels):
+	# def __init__(self, args):
+		# dataset = args[0]
+		# labels = args[1]
 		self.root = Node(dataset, labels)
 		self.root.populateChild()
 
@@ -159,6 +161,15 @@ class Tree():
 			return -1
 		else:
 			return 1
+
+	def classify_average(self, data):
+		current = self.root
+		while not current.isLeaf():
+			if data[current.feature_index] >= current.feature_value:
+				current = current.right
+			else:
+				current = current.left
+		return current.C1, current.C2
 
 	# def print(self, dataset):
 
@@ -201,46 +212,82 @@ def split_data(data, labels, randomize):
 def bootstrap_data(data, labels):
 	return resample(data, labels, n_samples = SAMPLE_SIZE)
 
-def print_something(args):
-	print "Hello"
+def insert_tree(data, labels, result, i):
+	tree = Tree(data, labels)
+	result[i] = tree
 
 def main():
 	data, labels, shares =  readfile()
-	train_data, test_data, train_labels, test_labels = split_data(data, labels, True)
-	list_of_trees = []
+	a, b = 0, 0
+	for p in range(10):
+		train_data, test_data, train_labels, test_labels = split_data(data, labels, True)
+		list_of_trees = []
 
-	for i in range(NUM_TREES):
-		sampled_data, sampled_labels = bootstrap_data(train_data, train_labels)
-		tree = Tree([sampled_data, sampled_labels])
-		list_of_trees.append(tree)
+		clf = RandomForestClassifier(n_estimators = NUM_TREES, max_features = 20, n_jobs = 8)
+		clf.fit(train_data, train_labels)
+		t1 = clf.score(test_data, test_labels)
+		t2 = clf.score(train_data, train_labels)
+		a += t1
+		b += t2
+		print t1, t2
 
-	# Make the Pool of workers
-	# pool = ThreadPool(6) 
-	# s1, l1 = bootstrap_data(train_data, train_labels)
-	# s2, l2 = bootstrap_data(train_data, train_labels)
-	# s3, l3 = bootstrap_data(train_data, train_labels)
-	# s4, l4 = bootstrap_data(train_data, train_labels)
-	# s5, l5 = bootstrap_data(train_data, train_labels)
-	# s6, l6 = bootstrap_data(train_data, train_labels)
+		# for i in range(NUM_TREES):
+		# 	sampled_data, sampled_labels = bootstrap_data(train_data, train_labels)
+		# 	tree = Tree(sampled_data, sampled_labels)
+		# 	list_of_trees.append(tree)
 
-	# args = [[s1, l1], [s2, l2], [s3, l3], [s4, l4], [s5, l5], [s6, l6]]
+		# # Make the Pool of workers
+		# # pool = ThreadPool(processes=6) 
+		# # s1, l1 = bootstrap_data(train_data, train_labels)
+		# # s2, l2 = bootstrap_data(train_data, train_labels)
+		# # s3, l3 = bootstrap_data(train_data, train_labels)
+		# # s4, l4 = bootstrap_data(train_data, train_labels)
+		# # s5, l5 = bootstrap_data(train_data, train_labels)
+		# # s6, l6 = bootstrap_data(train_data, train_labels)
 
-	# list_of_trees = pool.map(Tree, args)
-	# pool.close() 
-	# pool.join()
+		# # args = [[s1, l1], [s2, l2], [s3, l3], [s4, l4], [s5, l5], [s6, l6]]
+		# # list_of_trees = pool.map(Tree, args)
 
-	count = 0
-	for i in range(10):
-		count1 = 0
-		count2 = 0
-		for j in range(NUM_TREES):
-			if list_of_trees[j].classify(test_data[i]) == 1:
-				count1 += 1
-			else:
-				count2 += 1
-		if (count1 > count2 and test_labels[i] == -1) or (count2 > count1 and test_labels[i] == 1):
-			count += 1
-	print count
+		# # threads = [None] * NUM_TREES
+		# # list_of_trees = [None] * NUM_TREES
+
+		# # for i in range(len(threads)):
+		# # 	sampled_data, sampled_labels = bootstrap_data(train_data, train_labels)
+		# # 	threads[i] = Thread(target=insert_tree, args=(sampled_data, sampled_labels, list_of_trees, i))
+		# # 	threads[i].start()
+
+		# # for i in range(len(threads)):
+		# # 	threads[i].join()
+
+		# count_Test = 0
+		# for i in range(len(test_data)):
+		# 	count1 = 0
+		# 	count2 = 0
+		# 	for j in range(NUM_TREES):
+		# 		if list_of_trees[j].classify(test_data[i]) == 1:
+		# 			count1 += 1
+		# 		else:
+		# 			count2 += 1
+		# 		# count1, count2 = list_of_trees[j].classify_average(test_data[i])
+		# 	if (count1 > count2 and test_labels[i] == -1) or (count2 > count1 and test_labels[i] == 1):
+		# 		count_Test += 1
+
+		# count = 0
+		# for i in range(len(train_data)):
+		# 	count1 = 0
+		# 	count2 = 0
+		# 	for j in range(NUM_TREES):
+		# 		if list_of_trees[j].classify(train_data[i]) == 1:
+		# 			count1 += 1
+		# 		else:
+		# 			count2 += 1
+		# 		# count1, count2 = list_of_trees[j].classify_average(train_data[i])
+		# 	if (count1 > count2 and train_labels[i] == -1) or (count2 > count1 and train_labels[i] == 1):
+		# 		count += 1
+		# a += float(count_Test)/len(test_data)
+		# b += float(count)/len(train_data)
+		# print float(count_Test)/len(test_data), float(count)/len(train_data)
+	print a/10, b/10
 
 if __name__ == '__main__':
 	np.random.seed()
