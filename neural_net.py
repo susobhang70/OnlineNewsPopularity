@@ -52,7 +52,7 @@ def split_data(data, labels, randomize):
 
 def main():
 	data, labels, shares =  readfile()
-	layers = [(100, 100), (1000, 100), (10, 10, 10), (10, 10, 10, 10), (10, 10, 10, 10, 10)]
+	layers = [(100), (1000, 100), (10, 10, 10), (10, 10, 10, 10), (10, 10, 10, 10, 10)]
 	for m in range(len(layers)):
 		a, b = 0, 0
 		for p in range(10):
