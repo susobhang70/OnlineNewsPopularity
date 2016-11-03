@@ -52,19 +52,21 @@ def split_data(data, labels, randomize):
 
 def main():
 	data, labels, shares =  readfile()
-	a, b = 0, 0
-	for p in range(10):
-		train_data, test_data, train_labels, test_labels = split_data(data, labels, True)
+	layers = [(100, 100), (1000, 100), (10, 10, 10), (10, 10, 10, 10), (10, 10, 10, 10, 10)]
+	for m in range(len(layers)):
+		a, b = 0, 0
+		for p in range(10):
+			train_data, test_data, train_labels, test_labels = split_data(data, labels, True)
 
-		clf = MLPClassifier(hidden_layer_sizes = (10, 10, 10, 10, 100), activation = 'logistic')
-		clf.fit(train_data, train_labels)
-		t1 = clf.score(test_data, test_labels)
-		t2 = clf.score(train_data, train_labels)
-		a += t1
-		b += t2
-		print t1, t2, clf.n_layers_
+			clf = MLPClassifier(hidden_layer_sizes = layers[m])
+			clf.fit(train_data, train_labels)
+			t1 = clf.score(test_data, test_labels)
+			t2 = clf.score(train_data, train_labels)
+			a += t1
+			b += t2
+			# print t1, t2, clf.n_layers_
 
-	print a/10, b/10
+		print a/10, b/10
 
 if __name__ == '__main__':
 	np.random.seed()
