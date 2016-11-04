@@ -10,6 +10,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
 
 EPOCHS = 10
 
@@ -23,6 +25,16 @@ def RandomForestPipeline(traindata, trainlabels):
 		('clf', RandomForestClassifier(n_estimators = NUM_TREES, n_jobs = 8)),])
 	rfpipeline = rfpipeline.fit(traindata, trainlabels)
 	return rfpipeline
+
+def NeuralNetPipeline(traindata, trainlabels):
+	nnpipeline = Pipeline([('vect', CountVectorizer()), ('tfidf', TfidfTransformer()), ('clf', MLPClassifier(hidden_layer_sizes = (10, 10, 10, 10, 100))),])
+	nnpipeline = nnpipeline.fit(traindata, trainlabels)
+	return nnpipeline
+
+def SVMPipeline(traindata, trainlabels):
+	svmpipeline = Pipeline([('vect', CountVectorizer()), ('tfidf', TfidfTransformer()), ('clf', SVC(kernel='rbf')),])
+	svmpipeline = svmpipeline.fit(traindata, trainlabels)
+	return svmpipeline
 
 def predict(pipeline, testdata, testlabels):
 	predicted = pipeline.predict(testdata)
@@ -81,6 +93,8 @@ def split_data(data, labels, randomize):
 def main():
 	labels = readlabels()
 	data = np.array(readfiles())
+	print CountVectorizer().fit_transform(data).shape
+	sys.exit(0)
 	# for i in range(EPOCHS):
 	# 	train_data, test_data, train_labels, test_labels = split_data(data, labels, True)
 	# 	nvpipeline = NaiveBayesPipeline(train_data, train_labels)
@@ -89,8 +103,8 @@ def main():
 	for k, (train, test) in enumerate(k_fold.split(data, labels)):
 		# print train
 		# print labels[train]
-		nvpipeline = NaiveBayesPipeline(data[train], labels[train])
-		predict(nvpipeline, data[test], labels[test])
+		svmpipeline = SVMPipeline(data[train], labels[train])
+		predict(svmpipeline, data[test], labels[test])
 
 if __name__ == '__main__':
 	main()
