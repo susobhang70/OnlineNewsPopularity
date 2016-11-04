@@ -11,7 +11,7 @@ def main():
     """
 
     # Opening the file, and extracting each line
-    fp = open('./OnlineNewsPopularity.csv','r')
+    fp = open('./../OnlineNewsPopularity.csv','r')
     data_lines = fp.readlines()
 
     # The first line consists of all features, we extract number and names.
@@ -79,7 +79,8 @@ def main():
     i = 0
     for key, value in sorted_mapping:
         if i != 0:
-            print str(key) + ',' + str(value) + ',' + str(mean1[i]) + ',' + str(mean2[i]) + ',' + str(s1_squared[i]) + ',' + str(s2_squared[i])
+            print str(key).lstrip() + ',' + str(value)
+             # + ',' + str(mean1[i]) + ',' + str(mean2[i]) + ',' + str(s1_squared[i]) + ',' + str(s2_squared[i])
         i = i + 1
 
     fp.close()

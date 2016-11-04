@@ -85,7 +85,7 @@ class Node():
 
 		if self.__leaf == True:
 			return
-		
+
 		# selecting m features out of p
 		self.__select_features()
 
